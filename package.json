@@ -1,6 +1,7 @@
 {
   "name": "@convoy/airtable-graphql",
   "version": "1.0.9",
+  "private": true,
   "description": "Deploy a GraphQL server for an airtable base",
   "main": "index.js",
   "bin": {
@@ -13,7 +14,7 @@
   "author": "Thomas Cullen",
   "license": "MIT",
   "dependencies": {
-    "airtable": "^0.5.10",
+    "airtable": "^0.7.1",
     "apollo-server": "^2.3.3",
     "camelcase": "^5.0.0",
     "commander": "^2.19.0",
