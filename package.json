@@ -1,5 +1,5 @@
 {
-  "name": "airtable-graphql",
+  "name": "@convoy/airtable-graphql",
   "version": "1.0.9",
   "description": "Deploy a GraphQL server for an airtable base",
   "main": "index.js",
