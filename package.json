@@ -13,12 +13,14 @@
   "author": "Thomas Cullen",
   "license": "MIT",
   "dependencies": {
-    "airtable": "^0.5.8",
+    "airtable": "^0.5.10",
     "apollo-server": "^2.3.3",
     "camelcase": "^5.0.0",
     "commander": "^2.19.0",
     "graphql": "^14.1.1",
-    "pluralize": "^7.0.0",
+    "pluralize": "^7.0.0"
+  },
+  "devDependencies": {
     "puppeteer": "^1.12.2"
   }
 }
