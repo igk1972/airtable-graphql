@@ -13,7 +13,7 @@ module.exports = (airtableSchema, api, columnSupport) => {
     });
 
   const resolversForTable = (table, api) => {
-    return table.columns.reduce((resolvers, column) => {
+    const columnResolvers = table.columns.reduce((resolvers, column) => {
       let columnBuilder = columnSupport[column.type];
       if (!columnBuilder || !columnBuilder.resolver) {
         columnBuilder = columnSupport['text']
@@ -21,6 +21,10 @@ module.exports = (airtableSchema, api, columnSupport) => {
       resolvers[sanitize.toField(column.name)] = columnBuilder.resolver(column, api);
       return resolvers;
     }, {});
+
+    if (!columnResolvers.id) {
+      columnResolvers.id = columnSupport['id'].resolver();
+    }
   };
 
   const resolverForAll = (table, api) => () =>

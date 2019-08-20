@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-const { printIntrospectionSchema, printSchema } = require('graphql');
+const { printSchema } = require('graphql');
 const fs = require('fs');
 const fetchSchema = require('../fetchSchema');
 const program = require('commander');
