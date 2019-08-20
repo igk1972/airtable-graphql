@@ -14,10 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "airtable": "^0.7.1",
-    "apollo-server": "^2.3.3",
     "camelcase": "^5.0.0",
     "commander": "^2.19.0",
-    "graphql": "^14.1.1",
     "pluralize": "^7.0.0"
   },
   "peerDependencies": {
