@@ -23,8 +23,10 @@ module.exports = (airtableSchema, api, columnSupport) => {
     }, {});
 
     if (!columnResolvers.id) {
-      columnResolvers.id = columnSupport['id'].resolver();
+      columnResolvers.id = obj => obj.id;
     }
+
+    return columnResolvers;
   };
 
   const resolverForAll = (table, api) => () =>
