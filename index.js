@@ -2,6 +2,16 @@ const convertSchema = require('./convertSchema');
 const createResolvers = require('./createResolvers');
 const airtable = require('airtable');
 const fs = require('fs');
+const NoopCache = require('./noopCache');
+
+/*
+ cache interface:
+ {
+   async get(key: string): object;
+   async put(key: string, value: object, ttlMs: number);
+   async invalidate(key: string);
+ }
+*/
 
 class AirtableGraphQL {
   constructor(apiKey, config = {}) {
@@ -21,7 +31,7 @@ class AirtableGraphQL {
     this.api = airtable.base(schema.id);
     this.schema = convertSchema(schema, this.columns);
 
-    this.resolvers = createResolvers(schema, this.api, this.columns);
+    this.resolvers = createResolvers(schema, this.api, this.columns, config.cache || new NoopCache());
   }
 
   addColumnSupport(columnType, config) {
