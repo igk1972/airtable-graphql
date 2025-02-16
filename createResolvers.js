@@ -1,29 +1,29 @@
 const sanitize = require("./sanitize");
 
-  // Takes an airtable schema and returns GraphQL resolvers.
-module.exports = (airtableSchema, api, columnSupport) => {
-  const fetchRecord = (api, table, id) =>
+const TTL_MS = 60 * 1000; // 1 minutes
+
+// Takes an airtable schema and returns GraphQL resolvers.
+module.exports = (airtableSchema, api, columnSupport, cache) => {
+  const getRecordCacheKey = (table, id) => {
+    return `${table.name}:${id}`;
+  }
+
+  const getTableCacheKey = (table) => {
+    return `FullTable:${table.name}`;
+  }
+
+  const fetchRecordFromApi = (api, table, id) =>
     new Promise((resolve, reject) => {
       api(table).find(id, (err, record) => {
         if (err) {
           reject(err);
+          return;
         }
         resolve(record);
       });
     });
 
-  const resolversForTable = (table, api) => {
-    return table.columns.reduce((resolvers, column) => {
-      let columnBuilder = columnSupport[column.type];
-      if (!columnBuilder || !columnBuilder.resolver) {
-        columnBuilder = columnSupport['text']
-      }
-      resolvers[sanitize.toField(column.name)] = columnBuilder.resolver(column, api);
-      return resolvers;
-    }, {});
-  };
-
-  const resolverForAll = (table, api) => () =>
+  const fetchAllRecordsForTable = (table, api) =>
     new Promise((resolve, reject) => {
       let results = [];
       api(table.name)
@@ -38,6 +38,48 @@ module.exports = (airtableSchema, api, columnSupport) => {
           }
         );
     });
+
+  const fetchRecord = async (api, table, id) => {
+    const cacheKey = getRecordCacheKey(table, id)
+    const cachedResult = await cache.get(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
+    const result = await fetchRecordFromApi(api, table, id);
+    if (result) {
+      await cache.put(cacheKey, result, TTL_MS);
+    }
+    return result;
+  }
+
+  const resolversForTable = (table, api) => {
+    const columnResolvers = table.columns.reduce((resolvers, column) => {
+      let columnBuilder = columnSupport[column.type];
+      if (!columnBuilder || !columnBuilder.resolver) {
+        columnBuilder = columnSupport['text']
+      }
+      resolvers[sanitize.toField(column.name)] = columnBuilder.resolver(column, api);
+      return resolvers;
+    }, {});
+
+    if (!columnResolvers.id) {
+      columnResolvers.id = obj => obj.id;
+    }
+
+    return columnResolvers;
+  };
+
+  const resolverForAll = (table, api) => async () => {
+    const cacheKey = getTableCacheKey(table);
+    const cachedResults = await cache.get(cacheKey);
+    if (cachedResults) {
+      return cachedResults;
+    }
+    const results = await fetchAllRecordsForTable(table, api);
+    await cache.put(cacheKey, results, TTL_MS);
+    return results;
+  }
 
   const resolverForSingle = (table, api) => (_, args) => {
     return fetchRecord(api, table.name, args.id);

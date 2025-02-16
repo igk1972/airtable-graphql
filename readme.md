@@ -1,13 +1,5 @@
 # Airtable GraphQL
 
-Quickly deploy a GraphQL API for an airtable base in just a few lines of code.
-
-```js
-const AirtableGraphQL = require("airtable-graphql");
-api = new AirtableGraphQL("airtable_api_key");
-api.listen();
-```
-
 # Setup
 
 ```
@@ -24,8 +16,29 @@ This will create a `schema.json` file which describes all of your bases tables a
 
 Use the `airtable-graphql start` command to start the adapter
 
-```
 $ AIRTABLE_API_KEY={{api_key}} airtable-graphql start -s schema.json -p 8765
+
+or
+
+```js
+// Embedding in an express app
+import express from 'express';
+import { printSchmea } from 'graphql';
+import { ApolloServer } from 'apollo-server-express';
+
+const AirtableGraphQL = require('airtable-graphql');
+const airtableGraphql = new AirtableGraphQL('airtable_api_key');
+
+const server = new ApolloServer({
+  typeDefs: printSchmea(airtableSchema.schema),
+  resolvders: airtableSchema.resolvers,
+});
+const app = express();
+server.applyMiddleware({ app });
+
+app.listen({ port: 4000 }, () =>
+  console.log(`🚀 Server ready at http://localhost:8765${server.graphqlPath}`),
+);
 ```
 
 Open your browser to localhost:8765 to start writing GraphQL queries against your Airtable data.
