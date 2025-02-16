@@ -14,7 +14,11 @@ $ airtable-graphql pull --email=[your_email] --password=[your_password] --base=[
 
 This will create a `schema.json` file which describes all of your bases tables and columns.
 
-Create a file called `index.js` and add the following.
+Use the `airtable-graphql start` command to start the adapter
+
+$ AIRTABLE_API_KEY={{api_key}} airtable-graphql start -s schema.json -p 8765
+
+or
 
 ```js
 // Embedding in an express app
@@ -33,10 +37,10 @@ const app = express();
 server.applyMiddleware({ app });
 
 app.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
+  console.log(`🚀 Server ready at http://localhost:8765${server.graphqlPath}`),
 );
 ```
 
-Run `node index.js`
+Open your browser to localhost:8765 to start writing GraphQL queries against your Airtable data.
 
 That's it!
